@@ -53,8 +53,10 @@ class GameLifeCongueyState(BasicState):
                 # meanwhile
                 if event.type == KEYDOWN:
                     if event.key == K_PLUS:
+                        print("PLUSS")
                         self.pack_cells.reconfig(5)
                     if event.key == K_LESS:
+                        print("LESS")
                         self.pack_cells.reconfig(-5)
 
             flip()

@@ -11,10 +11,10 @@ class Cell:
         self.screen_rect = self.screen.get_rect()
 
         self.rect = rect_cell
-        self.radius = 5
+        self.radius = 2
 
         self.color_dead = 'gray'
-        self.color_mouse_here = 'dark_gray'
+        self.color_mouse_here = 'dark gray'
         self.color_live = 'green'
         self.color_cell = self.color_dead
 
@@ -76,7 +76,12 @@ class PackageCell:
         self.rect_dynamic = self.rect
 
         # initial pos for the first cell
-        self.rect_general_cell = Rect(self.padding, self.padding, 20, 20)
+        self.rect_general_cell = Rect(self.padding, self.padding, 50, 50)
+
+        print(f"x: {self.rect_general_cell.x}")
+        print(f"y: {self.rect_general_cell.y}")
+        print(f"width: {self.rect_general_cell.width}")
+        print(f"height: {self.rect_general_cell.height}")
 
         # algorithms for find the columns and the rows
         # for columns
@@ -97,7 +102,7 @@ class PackageCell:
         for i_row in range(self.row):
             row_cells = []
             for i_column in range(self.colum):
-                row_cells.append(Cell(self.screen, self.rect_general_cell))
+                row_cells.append(Cell(self.screen, self.rect_general_cell.copy()))
                 self.rect_general_cell.x += self.rect_general_cell.width
 
             self.rect_general_cell.x = self.padding
@@ -161,11 +166,11 @@ class PackageCell:
             for i_column in range(self.colum):
                 self.list_cells[i_row][i_column].show()
 
-                # check if it must add two columns or two rows
-                if not dd_column and self.list_cells[i_row][i_column].rect.x > self.rect_screen.x:
-                    dd_column = True
-                if not dd_row and self.list_cells[i_row][i_column].rect.y > self.rect_screen.y:
-                    dd_row = True
+        # check if it must add two columns or two rows
+        if not dd_column and self.list_cells[0][0].rect.x > self.rect_screen.x:
+            dd_column = True
+        if not dd_row and self.list_cells[0][0].rect.y > self.rect_screen.y:
+            dd_row = True
 
         if dd_row or dd_column:
             self.add_cells()
