@@ -9,8 +9,6 @@ from pygame import KEYDOWN
 
 from code.Globals.constants import exit_code
 
-from code.units import PackageCell
-
 
 class BasicState:
     def __init__(self, screen, color_background):
@@ -32,9 +30,6 @@ class GameLifeCongueyState(BasicState):
     def __init__(self, screen):
         BasicState.__init__(self, screen, 'white')
 
-        self.pack_cells = PackageCell(screen)
-        self.pack_cells.find_pos_and_instance_cells()
-
         self.play = False
 
     def run(self):
@@ -42,13 +37,9 @@ class GameLifeCongueyState(BasicState):
             self.show()  # code flip basic state
 
             if self.play:
-                self.pack_cells.automatic()
+                pass
             else:
-                self.pack_cells.no_automatic()
-
-            # show package cells
-            self.pack_cells.run()
-            self.pack_cells.listen_for_resize()
+                pass
 
             for event in get_event():
                 if event.type == QUIT:
@@ -56,9 +47,9 @@ class GameLifeCongueyState(BasicState):
                 # meanwhile
                 if event.type == KEYDOWN:
                     if event.unicode == '+':
-                        self.pack_cells.reconfig(4)
+                        pass
                     if event.unicode == '-':
-                        self.pack_cells.reconfig(-4)
+                        pass
 
             flip()
             self.tick_(self.FPS)
