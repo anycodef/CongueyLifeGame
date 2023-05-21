@@ -1,5 +1,3 @@
-import time
-
 from pygame import QUIT
 from pygame.display import flip
 from pygame.time import Clock
@@ -8,6 +6,8 @@ from pygame.event import get as get_event
 from pygame import KEYDOWN
 
 from code.Globals.constants import exit_code
+
+from code.units import DynamicGrid
 
 
 class BasicState:
@@ -30,11 +30,15 @@ class GameLifeCongueyState(BasicState):
     def __init__(self, screen):
         BasicState.__init__(self, screen, 'white')
 
+        self.dynamic_grid = DynamicGrid(self.screen)
+
         self.play = False
 
     def run(self):
         while not self.class_state_return:
             self.show()  # code flip basic state
+
+            self.dynamic_grid.draw_grip_and_live_cells()
 
             if self.play:
                 pass
