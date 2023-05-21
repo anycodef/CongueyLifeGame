@@ -1,9 +1,11 @@
+import time
+
 from pygame import QUIT
 from pygame.display import flip
 from pygame.time import Clock
 from pygame.event import get as get_event
 
-from pygame import KEYDOWN, KEYUP, K_PLUS, K_LESS
+from pygame import KEYDOWN
 
 from code.Globals.constants import exit_code
 
@@ -46,18 +48,17 @@ class GameLifeCongueyState(BasicState):
 
             # show package cells
             self.pack_cells.run()
+            self.pack_cells.listen_for_resize()
 
             for event in get_event():
                 if event.type == QUIT:
                     self.class_state_return = exit_code
                 # meanwhile
                 if event.type == KEYDOWN:
-                    if event.key == K_PLUS:
-                        print("PLUSS")
-                        self.pack_cells.reconfig(5)
-                    if event.key == K_LESS:
-                        print("LESS")
-                        self.pack_cells.reconfig(-5)
+                    if event.unicode == '+':
+                        self.pack_cells.reconfig(4)
+                    if event.unicode == '-':
+                        self.pack_cells.reconfig(-4)
 
             flip()
             self.tick_(self.FPS)

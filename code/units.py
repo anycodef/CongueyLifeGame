@@ -25,11 +25,11 @@ class Cell:
         self.pos_mouse_pressed = None
         # algorithms for selected cell
 
-    def reconfig(self, valor):
-        self.rect.x += valor / 2
-        self.rect.y += valor / 2
-        self.rect.width -= valor
-        self.rect.height -= valor
+    def reconfig(self, vect_list_move, value):
+        self.rect.x += vect_list_move[0]
+        self.rect.y += vect_list_move[1]
+        self.rect.width -= value
+        self.rect.height -= value
 
     def automatic(self):
         if self.is_live:
@@ -63,38 +63,42 @@ class Cell:
 
 class PackageCell:
     def __init__(self, screen):
+
+        # main surface
         self.screen = screen
         self.rect_screen = screen.get_rect()
 
+        # imaginary rect
         self.padding = -50
         self.color_background = 'orange'
 
-        # This rect not is modified
-        self.rect = Rect(self.padding, self.padding,
-                         self.rect_screen.width - 2 * self.padding, self.rect_screen.height - 2 * self.padding)
-
-        self.rect_dynamic = self.rect
-
-        # initial pos for the first cell
-        self.rect_general_cell = Rect(self.padding, self.padding, 50, 50)
-
-        print(f"x: {self.rect_general_cell.x}")
-        print(f"y: {self.rect_general_cell.y}")
-        print(f"width: {self.rect_general_cell.width}")
-        print(f"height: {self.rect_general_cell.height}")
+        # settings cell
+        width_cell = 50
+        height_cell = 50
 
         # algorithms for find the columns and the rows
         # for columns
         cont = 1
-        while cont * self.rect_general_cell.width < self.rect_screen.width - 2 * self.padding:
+        while cont * width_cell < self.rect_screen.width - 2 * self.padding or not cont % 2:
             cont += 1
         self.colum = cont
 
         # for columns
         cont = 1
-        while cont * self.rect_general_cell.height < self.rect_screen.height - 2 * self.padding:
+        while cont * height_cell < self.rect_screen.height - 2 * self.padding or not cont % 2:
             cont += 1
         self.row = cont
+
+        # This rect not is modified
+        x_first_cell = (self.rect_screen.width - self.colum * width_cell) / 2
+        y_first_cell = (self.rect_screen.height - self.row * height_cell) / 2
+
+        # initial pos for the first cell
+        self.rect_general_cell = Rect(x_first_cell, y_first_cell, 50, 50)
+
+        self.rect = Rect(x_first_cell, y_first_cell, self.colum * width_cell, self.row * height_cell)
+
+        self.rect_dynamic = self.rect
 
         self.list_cells = []       # list bidimensional
 
@@ -118,22 +122,24 @@ class PackageCell:
     def no_automatic(self):
         for i_row in range(self.row):
             for i_column in range(self.colum):
-                print(f"c: {self.list_cells[i_row].__len__()} -> {self.colum}, r: {self.list_cells.__len__()} -> {self.row}")
-
                 self.list_cells[i_row][i_column].no_automatic()
 
     def reconfig(self, value):
+        row_center = (self.row - 1) / 2 + 1
+        column_center = (self.colum - 1) / 2 + 1
+
         for i_row in range(self.row):
             for i_column in range(self.colum):
-                self.list_cells[i_row][i_column].reconfig(value)
-
-        self.rect_dynamic.x += value / 2
-        self.rect_dynamic.y += value / 2
-        self.rect_dynamic.width += value
-        self.rect_dynamic.height += value
+                displacement_vector = [(row_center - i_row) * value, (column_center - i_column) * value]
+                self.list_cells[i_row][i_column].reconfig(displacement_vector, value)
 
         self.rect_general_cell.width += value
         self.rect_general_cell.height += value
+
+        self.rect_dynamic.width = self.colum * self.rect.width
+        self.rect_dynamic.height = self.row * self.rect.height
+        self.rect_dynamic.x = self.list_cells[0][0].rect.x
+        self.rect_dynamic.y = self.list_cells[0][0].rect.y
 
     def add_cells(self):
         height = self.rect_general_cell.height
@@ -151,29 +157,23 @@ class PackageCell:
         y += (self.list_cells.__len__() + 1) * height
         row2 = [Cell(self.screen, Rect(x + i * width, y, width, height)) for i in range(self.list_cells[0].__len__())]
 
-        print(self.list_cells.__len__())
         self.list_cells = [row1] + self.list_cells + [row2]
-        print(self.list_cells.__len__())
 
         self.colum += 2
         self.row += 2
 
+    def listen_for_resize(self):
+        # check if it must add two columns or two rows
+        if self.list_cells[0][0].rect.x >= 0 or \
+                self.list_cells[0][0].rect.y >= 0:
+            self.add_cells()
+
     def run(self):
-        dd_row = False
-        dd_column = False
-        print(self.row)
         for i_row in range(self.row):
             for i_column in range(self.colum):
                 self.list_cells[i_row][i_column].show()
 
-        # check if it must add two columns or two rows
-        if not dd_column and self.list_cells[0][0].rect.x > self.rect_screen.x:
-            dd_column = True
-        if not dd_row and self.list_cells[0][0].rect.y > self.rect_screen.y:
-            dd_row = True
 
-        if dd_row or dd_column:
-            self.add_cells()
 
 
 
