@@ -1,5 +1,5 @@
 from pygame import Rect
-from pygame.draw import line, rect
+from pygame.draw import rect
 from pygame.mouse import get_pos, get_pressed
 
 
@@ -27,13 +27,13 @@ class DynamicGrid:
         self.width_line = 1
 
         # dynamic grid
-        self.rect = Rect(-self.cell_attr.side, -self.cell_attr.side, self.screen_rect.width + 2 * self.cell_attr.side,
-                         self.screen_rect.height + 2 * self.cell_attr.side)
+        self.rect = self.screen_rect.copy()
+        self.x_center = self.rect.width / 2
+        self.y_center = self.rect.height / 2
 
         self.row = None
         self.column = None
         self.list_intersection_points = None
-        self.list_extreme_points = None
 
         # cell
         self.list_live_cell_points = []
@@ -41,79 +41,67 @@ class DynamicGrid:
     def calculate_disposition_of_grid(self):
 
         # initialize the variables
-        self.list_extreme_points = []
         self.list_intersection_points = []
 
-        self.row = 0
-        while self.row * self.cell_attr.side < self.rect.height:
-            self.row += 1
+        # find a xs and ys for form interception points
+        xs = [self.x_center]
+        for i in [1, -1]:
+            x_variable = self.x_center
+            side_cell = self.cell_attr.side * i
+            while (x_variable < self.screen_rect.width and i == 1) or (x_variable > 0 and i == -1):
+                x_variable += side_cell
+                xs.append(x_variable)
 
-        self.column = 0
-        while self.column * self.cell_attr.side < self.rect.width:
-            self.column += 1
+        ys = [self.y_center]
+        for i in [1, -1]:
+            y_variable = self.y_center
+            side_cell = self.cell_attr.side * i
+            while (y_variable < self.screen_rect.height and i == 1) or (y_variable > 0 and i == -1):
+                y_variable += side_cell
+                ys.append(y_variable)
 
-        # procedure: find interception points and extremes points list
-        y = self.rect.y
-        h1, h2 = [], []
-
-        for row in range(self.row + 1):
-            row_points = []
-            x = self.rect.x
-            for column in range(self.column + 1):
-                row_points.append([x, y])
-
-                if column == 0:
-                    h1.append([x, y])
-                if column == self.column:
-                    h2.append([x, y])
-
-                x += self.cell_attr.side
-
-            self.list_intersection_points.append(row_points)
-            y += self.cell_attr.side
-
-        v1, v2 = self.list_intersection_points[0], self.list_intersection_points.copy().pop()
-
-        self.list_extreme_points.append(list(zip(h1, h2)))
-        self.list_extreme_points.append(list(zip(v1, v2)))
+        for x in xs:
+            for y in ys:
+                self.list_intersection_points.append([x, y])
 
     def draw_grip_and_live_cells(self):
-        for orientation in self.list_extreme_points:
-            for point1, point2 in orientation:
-                line(self.screen, self.color_line, point1, point2, self.width_line)
+        for points in self.list_intersection_points:
+            rect(self.screen, 'black', (*points, self.cell_attr.side, self.cell_attr.side), width=1)
 
         if self.list_live_cell_points:
             for point_cell in self.list_live_cell_points:
                 rect(self.screen, self.cell_attr.color, (*point_cell, self.cell_attr.side, self.cell_attr.side))
 
         if self.cell_attr.point_on_top_of:
-            rect(self.screen, 'black', (*self.cell_attr.point_on_top_of, self.cell_attr.side, self.cell_attr.side), self.cell_attr.width_border_on_top_of)
+            rect(self.screen, 'black', (*self.cell_attr.point_on_top_of, self.cell_attr.side, self.cell_attr.side),
+                 self.cell_attr.width_border_on_top_of)
 
     def listen_points_on_top_of_and_select_live_cells(self):
-        for row in self.list_intersection_points:
-            for point_inter in row:
-                if point_inter[0] < get_pos()[0] < point_inter[0] + self.cell_attr.side and point_inter[1] < get_pos()[1] < point_inter[1] + self.cell_attr.side:
-                    self.cell_attr.point_on_top_of = point_inter
-                    if get_pressed()[0]:
-                        if self.cell_attr.one_time_clicked:
-                            self.cell_attr.one_time_clicked = False
-                            if point_inter in self.list_live_cell_points:
-                                self.list_live_cell_points.remove(point_inter)
-                            else:
-                                self.list_live_cell_points.append(point_inter)
-                    else:
-                        self.cell_attr.one_time_clicked = True
+        for point_inter in self.list_intersection_points:
+            if point_inter[0] < get_pos()[0] < point_inter[0] + self.cell_attr.side and \
+                    point_inter[1] < get_pos()[1] < point_inter[1] + self.cell_attr.side:
+                self.cell_attr.point_on_top_of = point_inter
+                if get_pressed()[0]:
+                    if self.cell_attr.one_time_clicked:
+                        self.cell_attr.one_time_clicked = False
+                        if point_inter in self.list_live_cell_points:
+                            self.list_live_cell_points.remove(point_inter)
+                        else:
+                            self.list_live_cell_points.append(point_inter)
+                else:
+                    self.cell_attr.one_time_clicked = True
 
     def reconfigure_position_and_side_measure(self, value):
         if 10 < self.cell_attr.side and value < 0 or self.cell_attr.side < 60 and value > 0:
             self.cell_attr.side += value
             self.calculate_disposition_of_grid()
-            self.update_points(value, self.cell_attr.side - value, self.cell_attr.side)
+            # self.update_points(value, self.cell_attr.side - value, self.cell_attr.side)
 
     def update_points(self, value, old_side, new_side):
         list_points_updated_live_cell = []
 
         for point in self.list_live_cell_points:
+            pass
 
 
 
