@@ -31,6 +31,7 @@ class GameLifeCongueyState(BasicState):
         BasicState.__init__(self, screen, 'white')
 
         self.dynamic_grid = DynamicGrid(self.screen)
+        self.dynamic_grid.calculate_disposition_of_grid()
 
         self.play = False
 
@@ -38,12 +39,11 @@ class GameLifeCongueyState(BasicState):
         while not self.class_state_return:
             self.show()  # code flip basic state
 
-            self.dynamic_grid.draw_grip_and_live_cells()
-
             if self.play:
                 pass
             else:
-                pass
+                self.dynamic_grid.draw_grip_and_live_cells()
+                self.dynamic_grid.listen_points_on_top_of_and_select_live_cells()
 
             for event in get_event():
                 if event.type == QUIT:
@@ -51,9 +51,9 @@ class GameLifeCongueyState(BasicState):
                 # meanwhile
                 if event.type == KEYDOWN:
                     if event.unicode == '+':
-                        pass
+                        self.dynamic_grid.reconfigure_position_and_side_measure(-5)
                     if event.unicode == '-':
-                        pass
+                        self.dynamic_grid.reconfigure_position_and_side_measure(5)
 
             flip()
             self.tick_(self.FPS)
