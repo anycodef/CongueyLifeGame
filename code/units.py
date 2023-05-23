@@ -95,13 +95,29 @@ class DynamicGrid:
         if 10 < self.cell_attr.side and value < 0 or self.cell_attr.side < 60 and value > 0:
             self.cell_attr.side += value
             self.calculate_disposition_of_grid()
-            # self.update_points(value, self.cell_attr.side - value, self.cell_attr.side)
+            self.update_points_live_cells(self.cell_attr.side - value, self.cell_attr.side)
 
-    def update_points(self, value, old_side, new_side):
+    def update_points_live_cells(self, old_side=1, new_side=1):
         list_points_updated_live_cell = []
 
         for point in self.list_live_cell_points:
-            pass
+            vector = [self.x_center - point[0], self.y_center - point[1]]
+            list_points_updated_live_cell.append([-vector[0] * new_side / old_side + self.x_center,
+                                                  -vector[1] * new_side / old_side + self.y_center])
+
+        self.list_live_cell_points = list_points_updated_live_cell
+
+    def move(self, vector):
+        self.x_center += vector[0]
+        self.y_center += vector[1]
+
+        self.calculate_disposition_of_grid()
+
+        if self.list_live_cell_points:
+            list_live_cell_points = []
+            for point in self.list_live_cell_points:
+                list_live_cell_points.append([vector[0] + point[0], vector[1] + point[1]])
+            self.list_live_cell_points = list_live_cell_points
 
 
 
