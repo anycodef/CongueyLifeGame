@@ -41,7 +41,6 @@ class DynamicGrid:
     def calculate_disposition_of_grid(self):
 
         # initialize the variables
-        self.list_live_cell_points = []
         self.list_extreme_points = []
         self.list_intersection_points = []
 
@@ -61,8 +60,7 @@ class DynamicGrid:
             row_points = []
             x = self.rect.x
             for column in range(self.column + 1):
-                if column != self.column and row != self.row:
-                    row_points.append([x, y])
+                row_points.append([x, y])
 
                 if column == 0:
                     h1.append([x, y])
@@ -70,8 +68,8 @@ class DynamicGrid:
                     h2.append([x, y])
 
                 x += self.cell_attr.side
-            if row != self.row:
-                self.list_intersection_points.append(row_points)
+
+            self.list_intersection_points.append(row_points)
             y += self.cell_attr.side
 
         v1, v2 = self.list_intersection_points[0], self.list_intersection_points.copy().pop()
@@ -109,5 +107,22 @@ class DynamicGrid:
     def reconfigure_position_and_side_measure(self, value):
         if 10 < self.cell_attr.side and value < 0 or self.cell_attr.side < 60 and value > 0:
             self.cell_attr.side += value
-        self.calculate_disposition_of_grid()
+            self.calculate_disposition_of_grid()
+            self.update_points(value, self.cell_attr.side - value, self.cell_attr.side)
+
+    def update_points(self, value, old_side, new_side):
+        list_points_updated_live_cell = []
+
+        for point in self.list_live_cell_points:
+
+
+
+
+
+
+
+
+
+
+
 
