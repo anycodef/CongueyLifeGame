@@ -66,11 +66,15 @@ class DynamicGrid:
 
     def draw_grip_and_live_cells(self):
         for points in self.list_intersection_points:
-            rect(self.screen, 'black', (*points, self.cell_attr.side, self.cell_attr.side), width=1)
+            if -self.cell_attr.side <= points[0] <= self.screen_rect.width + self.cell_attr.side and \
+                    -self.cell_attr.side <= points[1] <= self.screen_rect.height + self.cell_attr.side:
+                rect(self.screen, 'black', (*points, self.cell_attr.side, self.cell_attr.side), width=1)
 
         if self.list_live_cell_points:
             for point_cell in self.list_live_cell_points:
-                rect(self.screen, self.cell_attr.color, (*point_cell, self.cell_attr.side, self.cell_attr.side))
+                if -self.cell_attr.side <= point_cell[0] <= self.screen_rect.width + self.cell_attr.side and \
+                        -self.cell_attr.side <= point_cell[1] <= self.screen_rect.height + self.cell_attr.side:
+                    rect(self.screen, self.cell_attr.color, (*point_cell, self.cell_attr.side, self.cell_attr.side))
 
         if self.cell_attr.point_on_top_of:
             rect(self.screen, 'black', (*self.cell_attr.point_on_top_of, self.cell_attr.side, self.cell_attr.side),
@@ -118,15 +122,3 @@ class DynamicGrid:
             for point in self.list_live_cell_points:
                 list_live_cell_points.append([vector[0] + point[0], vector[1] + point[1]])
             self.list_live_cell_points = list_live_cell_points
-
-
-
-
-
-
-
-
-
-
-
-
