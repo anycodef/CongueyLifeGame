@@ -15,7 +15,7 @@ class Screen:
     def __init__(self):
         self.width = 900
         self.height = 600
-        self.obj = set_mode((self.width, self.height))
+        self.obj = set_mode()
 
 
 class ManagerState:

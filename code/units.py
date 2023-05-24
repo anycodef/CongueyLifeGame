@@ -1,4 +1,3 @@
-from pygame import Rect
 from pygame.draw import rect
 from pygame.mouse import get_pos, get_pressed
 
@@ -75,6 +74,7 @@ class DynamicGrid:
                 if -self.cell_attr.side <= point_cell[0] <= self.screen_rect.width + self.cell_attr.side and \
                         -self.cell_attr.side <= point_cell[1] <= self.screen_rect.height + self.cell_attr.side:
                     rect(self.screen, self.cell_attr.color, (*point_cell, self.cell_attr.side, self.cell_attr.side))
+                    rect(self.screen, 'black', (*point_cell, self.cell_attr.side, self.cell_attr.side), width=1)
 
         if self.cell_attr.point_on_top_of:
             rect(self.screen, 'black', (*self.cell_attr.point_on_top_of, self.cell_attr.side, self.cell_attr.side),
@@ -122,3 +122,33 @@ class DynamicGrid:
             for point in self.list_live_cell_points:
                 list_live_cell_points.append([vector[0] + point[0], vector[1] + point[1]])
             self.list_live_cell_points = list_live_cell_points
+
+    def automatic_run(self):
+
+        # step 1
+        list_point_cell_influenced = []
+        for point_live_cell in self.list_live_cell_points:
+            for x in [-self.cell_attr.side, 0, self.cell_attr.side]:
+                for y in [-self.cell_attr.side, 0, self.cell_attr.side]:
+                    if x or y:
+                        list_point_cell_influenced.append([point_live_cell[0] + x, point_live_cell[1] + y])
+
+        # step 2
+        list_point_unique = []
+        for point in list_point_cell_influenced:
+            if point not in list_point_unique:
+                list_point_unique.append(point)
+
+        list_list_point_num_repeat = []
+        for unique_point in list_point_unique:
+            list_list_point_num_repeat.append([unique_point, list_point_cell_influenced.count(unique_point)])
+
+        # step 3
+        new_list_live_cell_points = []
+        for point, num_weight in list_list_point_num_repeat:
+            if (point in self.list_live_cell_points and (num_weight in [2, 3])) or \
+                    (point not in self.list_live_cell_points and num_weight == 3):
+                new_list_live_cell_points.append(point)
+
+        # step 4
+        self.list_live_cell_points = new_list_live_cell_points
