@@ -209,4 +209,5 @@ class DynamicGrid:
                     self.listen_points_on_top_of_and_select_live_cells()
 
         self.draw_grip_and_live_cells()
+        self.move()
 
