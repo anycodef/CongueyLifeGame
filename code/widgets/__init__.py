@@ -1,0 +1,1 @@
+from pygame.mouse import get_pos, get_pressed

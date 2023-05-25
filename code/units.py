@@ -1,5 +1,9 @@
 from pygame.draw import rect
 from pygame.mouse import get_pos, get_pressed
+from pygame.event import get as get_event
+
+from pygame import KEYDOWN, KEYUP, K_SPACE
+from pygame import K_LEFT, K_RIGHT, K_DOWN, K_UP
 
 
 class Cell:
@@ -14,9 +18,17 @@ class Cell:
 
 
 class DynamicGrid:
-    def __init__(self, screen):
+    def __init__(self, screen, rect_surface_pather):
         self.screen = screen
-        self.screen_rect = screen.get_rect()
+        self.screen_rect = rect_surface_pather
+
+        # fps
+        self.FPS_list = [4, 10, 15, 20, 30, 60, 120]
+        self.fps = 20
+        self.time_count = 0
+
+        # vector move
+        self.vect_move = [0, 0]
 
         # cell
         self.cell_attr = Cell()
@@ -36,6 +48,9 @@ class DynamicGrid:
 
         # cell
         self.list_live_cell_points = []
+
+        # state
+        self.play = False
 
     def calculate_disposition_of_grid(self):
 
@@ -111,17 +126,42 @@ class DynamicGrid:
 
         self.list_live_cell_points = list_points_updated_live_cell
 
-    def move(self, vector):
-        self.x_center += vector[0]
-        self.y_center += vector[1]
+    def move(self):
+        if self.vect_move[0] or self.vect_move[1]:
+            self.x_center += self.vect_move[0]
+            self.y_center += self.vect_move[1]
 
-        self.calculate_disposition_of_grid()
+            self.calculate_disposition_of_grid()
 
-        if self.list_live_cell_points:
-            list_live_cell_points = []
-            for point in self.list_live_cell_points:
-                list_live_cell_points.append([vector[0] + point[0], vector[1] + point[1]])
-            self.list_live_cell_points = list_live_cell_points
+            if self.list_live_cell_points:
+                list_live_cell_points = []
+                for point in self.list_live_cell_points:
+                    list_live_cell_points.append([self.vect_move[0] + point[0], self.vect_move[1] + point[1]])
+                self.list_live_cell_points = list_live_cell_points
+
+        for event in get_event():
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    self.play = not self.play
+                if event.unicode == '+':
+                    self.reconfigure_position_and_side_measure(5)
+                if event.unicode == '-':
+                    self.reconfigure_position_and_side_measure(-5)
+                if event.key == K_UP and self.vect_move[1] <= 0:
+                    self.vect_move[1] = 5
+                elif event.key == K_DOWN and self.vect_move[1] >= 0:
+                    self.vect_move[1] = -5
+                elif event.key == K_LEFT and self.vect_move[0] >= 0:
+                    self.vect_move[0] = 5
+                elif event.key == K_RIGHT and self.vect_move[0] <= 0:
+                    self.vect_move[0] = -5
+            elif event.type == KEYUP:
+                if (event.key == K_UP and self.vect_move[1] > 0) or \
+                        (event.key == K_DOWN and self.vect_move[1] < 0):
+                    self.vect_move[1] = 0
+                elif (event.key == K_LEFT and self.vect_move[0] > 0) or \
+                        (event.key == K_RIGHT and self.vect_move[0] < 0):
+                    self.vect_move[0] = 0
 
     def automatic_run(self):
 
@@ -152,3 +192,21 @@ class DynamicGrid:
 
         # step 4
         self.list_live_cell_points = new_list_live_cell_points
+
+    def run(self, fps_system, list_rect_no_listen_pos_mouse):
+        # controller of the grid situation
+        if self.play:
+            if self.time_count >= fps_system / self.fps:
+                self.automatic_run()
+                self.time_count = 0
+            else:
+                self.time_count += 1
+        else:
+            # listen the position of mouse if not is the bar.
+            for rect_exclusion in list_rect_no_listen_pos_mouse:
+                if rect_exclusion.x + rect_exclusion.height <= get_pos()[0] <= rect_exclusion.x and \
+                        rect_exclusion.y + rect_exclusion.height <= get_pos()[1] <= rect_exclusion.y:
+                    self.listen_points_on_top_of_and_select_live_cells()
+
+        self.draw_grip_and_live_cells()
+
