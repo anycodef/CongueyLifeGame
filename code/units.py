@@ -1,6 +1,5 @@
 from pygame.draw import rect
 from pygame.mouse import get_pos, get_pressed
-from pygame.event import get as get_event
 
 from pygame import KEYDOWN, KEYUP, K_SPACE
 from pygame import K_LEFT, K_RIGHT, K_DOWN, K_UP
@@ -126,7 +125,7 @@ class DynamicGrid:
 
         self.list_live_cell_points = list_points_updated_live_cell
 
-    def move(self):
+    def move(self, even_list):
         if self.vect_move[0] or self.vect_move[1]:
             self.x_center += self.vect_move[0]
             self.y_center += self.vect_move[1]
@@ -139,7 +138,7 @@ class DynamicGrid:
                     list_live_cell_points.append([self.vect_move[0] + point[0], self.vect_move[1] + point[1]])
                 self.list_live_cell_points = list_live_cell_points
 
-        for event in get_event():
+        for event in even_list:
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
                     self.play = not self.play
@@ -193,7 +192,7 @@ class DynamicGrid:
         # step 4
         self.list_live_cell_points = new_list_live_cell_points
 
-    def run(self, fps_system, list_rect_no_listen_pos_mouse):
+    def run(self, fps_system, list_rect_no_listen_pos_mouse, event_list=[]):
         # controller of the grid situation
         if self.play:
             if self.time_count >= fps_system / self.fps:
@@ -204,10 +203,10 @@ class DynamicGrid:
         else:
             # listen the position of mouse if not is the bar.
             for rect_exclusion in list_rect_no_listen_pos_mouse:
-                if rect_exclusion.x + rect_exclusion.height <= get_pos()[0] <= rect_exclusion.x and \
-                        rect_exclusion.y + rect_exclusion.height <= get_pos()[1] <= rect_exclusion.y:
+                if (rect_exclusion.x + rect_exclusion.height <= get_pos()[0] or get_pos()[0] <= rect_exclusion.x) and \
+                        (rect_exclusion.y + rect_exclusion.height <= get_pos()[1] or get_pos()[1] <= rect_exclusion.y):
                     self.listen_points_on_top_of_and_select_live_cells()
 
         self.draw_grip_and_live_cells()
-        self.move()
+        self.move(event_list)
 

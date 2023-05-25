@@ -1,11 +1,8 @@
-from pygame import QUIT
 from pygame.display import flip
 from pygame.time import Clock
 from pygame.event import get as get_event
-from pygame.mouse import get_pos
 
-from pygame import KEYDOWN
-from pygame import K_ESCAPE, K_SPACE
+from pygame import KEYDOWN, K_ESCAPE, QUIT
 
 from code.Globals.constants import exit_code
 
@@ -42,13 +39,15 @@ class GameLifeCongueyState(BasicState):
 
     def run(self):
         while not self.class_state_return:
+            events_list = get_event()
+
             self.show()  # code flip basic state
 
-            self.dynamic_grid.run(self.FPS, self.list_exclusion_no_listen_get_pos)
+            self.dynamic_grid.run(self.FPS, self.list_exclusion_no_listen_get_pos, events_list)
             self.bar.run()
             self.dynamic_grid.fps = self.bar.return_fps()
 
-            for event in get_event():
+            for event in events_list:
                 if event.type == QUIT:
                     self.class_state_return = exit_code
                 # meanwhile
