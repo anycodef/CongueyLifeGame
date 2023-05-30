@@ -210,6 +210,4 @@ class DynamicGrid:
         self.draw_grip_and_live_cells()
         self.move(event_list)
 
-
         # confirm all update
-
