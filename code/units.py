@@ -2,7 +2,7 @@ from pygame.draw import rect
 from pygame.mouse import get_pos, get_pressed
 
 from pygame import KEYDOWN, KEYUP, K_SPACE
-from pygame import K_LEFT, K_RIGHT, K_DOWN, K_UP
+from pygame import K_LEFT, K_RIGHT, K_DOWN, K_UP, K_a, K_c, K_d
 
 
 class Cell:
@@ -154,6 +154,7 @@ class DynamicGrid:
                     self.vect_move[0] = 5
                 elif event.key == K_RIGHT and self.vect_move[0] <= 0:
                     self.vect_move[0] = -5
+
             elif event.type == KEYUP:
                 if (event.key == K_UP and self.vect_move[1] > 0) or \
                         (event.key == K_DOWN and self.vect_move[1] < 0):
@@ -161,6 +162,7 @@ class DynamicGrid:
                 elif (event.key == K_LEFT and self.vect_move[0] > 0) or \
                         (event.key == K_RIGHT and self.vect_move[0] < 0):
                     self.vect_move[0] = 0
+
 
     def automatic_run(self):
 
